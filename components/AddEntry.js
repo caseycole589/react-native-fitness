@@ -1,11 +1,18 @@
 import React, { Component } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { getMetricMetaInfo, timeToString } from '../utils/helpers';
+import {
+	getMetricMetaInfo,
+	timeToString,
+	getDailyReminderValue
+} from '../utils/helpers';
 import { MySlider } from './MySlider';
 import { Stepper } from './Stepper';
 import { DateHeader } from './DateHeader';
 import { Ionicons } from '@expo/vector-icons';
 import { TextButton } from './TextButton';
+import { submitEntry, removeEntry } from '../utils/api';
+import { connect } from 'react-redux';
+import { addEntry } from '../actions';
 const SubmitButton = ({ onPress }) => {
 	return (
 		<TouchableOpacity onPress={onPress}>
@@ -14,7 +21,7 @@ const SubmitButton = ({ onPress }) => {
 	);
 };
 
-export default class AddEntry extends Component {
+class AddEntry extends Component {
 	state = {
 		run: 0,
 		bike: 0,
@@ -49,6 +56,13 @@ export default class AddEntry extends Component {
 	submit = () => {
 		const key = timeToString();
 		const entry = this.state;
+
+		this.props.dispatch(
+			addEntry({
+				[key]: entry
+			})
+		);
+
 		this.setState(() => ({
 			run: 0,
 			bike: 0,
@@ -58,14 +72,18 @@ export default class AddEntry extends Component {
 		}));
 		//update redux
 		//navigate home
-		//save to database
+		submitEntry({ key, entry });
 		//clear loca notification
 	};
 	reset = () => {
 		const key = timeToString();
-		//updateredux
+		this.props.dispatch(
+			addEntry({
+				[key]: getDailyReminderValue()
+			})
+		);
 		//go home
-		//update database
+		removeEntry(key);
 	};
 	render() {
 		const metaInfo = getMetricMetaInfo();
@@ -81,6 +99,7 @@ export default class AddEntry extends Component {
 		return (
 			<View>
 				<DateHeader date={new Date().toLocaleDateString()} />
+				<SubmitButton onPress={this.submit} />
 				{Object.keys(metaInfo).map(key => {
 					const { getIcon, type, ...rest } = metaInfo[key];
 					const value = this.state[key];
@@ -104,8 +123,15 @@ export default class AddEntry extends Component {
 						</View>
 					);
 				})}
-				<SubmitButton onPress={this.submit} />
 			</View>
 		);
 	}
 }
+function mapStateToProps(state) {
+	const key = timeToString();
+	return {
+		alreadyLogged: state[key] && typeof state[key].today === 'undefined'
+	};
+}
+
+export default connect(mapStateToProps)(AddEntry);

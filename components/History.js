@@ -6,22 +6,22 @@ import { timeToString, getDailyReminderValue } from '../utils/helpers';
 import { fetchCalendarResults } from '../utils/api';
 
 class History extends Component {
-	// componentDidMount() {
-	// 	const { dispatch } = this.props;
+	componentDidMount() {
+		const { dispatch } = this.props;
 
-	// 	fetchCalendarResults()
-	// 		.then(entries => dispatch(recieveEntries(entries)))
-	// 		.then(({ entries }) => {
-	// 			if (!entries[timeToString()]) {
-	// 				dispatch(
-	// 					addEntry({
-	// 						[timeToString()]: getDailyReminderValue()
-	// 					})
-	// 				);
-	// 			}
-	// 		})
-	// 		.then(() => this.setState(() => ({ ready: true })));
-	// }
+		fetchCalendarResults()
+			.then(entries => dispatch(recieveEntries(entries)))
+			.then(({ entries }) => {
+				if (!entries[timeToString()]) {
+					dispatch(
+						addEntry({
+							[timeToString()]: getDailyReminderValue()
+						})
+					);
+				}
+			})
+			.then(() => this.setState(() => ({ ready: true })));
+	}
 	render() {
 		return (
 			<View>
